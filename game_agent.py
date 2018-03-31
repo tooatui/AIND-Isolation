@@ -4,6 +4,8 @@ and include the results in your report.
 """
 import random
 
+WINNING_UTILITY_SCORE = 1000
+LOSING_UTILITY_SCORE = -1000
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -222,27 +224,28 @@ class MinimaxPlayer(IsolationPlayer):
         if self.terminal_test(game):
             return (-1, -1)
 
-        # TODO: finish this function!
         best_score = float("-inf")
         best_move = None
 
         for move in game.get_legal_moves():
             score = self.min_value(game.forecast_move(move), depth - 1)
-            if(score > best_score):
+            if score > best_score:
                 best_score = score
                 best_move = move
 
-        return move
+        return best_move
+
 
     def min_value(self, game, depth):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
         if self.terminal_test(game):
-            return 1
+            return WINNING_UTILITY_SCORE
 
         if depth <= 0:
-            return self.score(game, game.active_player)
+            # the score should based on computer player
+            return self.score(game, game.inactive_player)
 
         min_v = float("inf")
 
@@ -257,7 +260,7 @@ class MinimaxPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         if self.terminal_test(game):
-            return -1
+            return LOSING_UTILITY_SCORE
 
         if depth <= 0:
             return self.score(game, game.active_player)
