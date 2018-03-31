@@ -385,11 +385,15 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_score = float("-inf")
         best_move = None
 
+        # should refer max_value considering updating alpha 
         for move in game.get_legal_moves():
             score = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
+            
             if score > best_score:
                 best_score = score
                 best_move = move
+
+            alpha = max(best_score, alpha)
 
         return best_move
 
