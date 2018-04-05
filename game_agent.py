@@ -4,13 +4,43 @@ and include the results in your report.
 """
 import random
 
-WINNING_UTILITY_SCORE = 1000
-LOSING_UTILITY_SCORE = -1000
+WINNING_UTILITY_SCORE = float("inf")
+LOSING_UTILITY_SCORE = float("-inf")
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
 
+def get_move_direction_count(location, moves):
+    right = 0
+    left = 0
+    up = 0
+    down = 0
+    upper_right = 0
+    upper_left = 0
+    down_right = 0
+    down_left = 0
+
+    for move in moves:
+        if move[0] - location[0] > 0 and move[1] - location[1] == 0:
+            right = 1
+        elif move[0] - location[0] < 0 and move[1] - location[1] == 0:
+            left = 1 
+        elif move[0] - location[0] == 0 and move[1] - location[1] > 0:
+            up = 1 
+        elif move[0] - location[0] == 0 and move[1] - location[1] < 0:
+            down = 1 
+        elif move[0] - location[0] > 0 and move[1] - location[1] > 0:
+            upper_right = 1 
+        elif move[0] - location[0] < 0 and move[1] - location[1] > 0:
+            upper_left = 1 
+        elif move[0] - location[0] > 0 and move[1] - location[1] < 0:
+            down_right = 1 
+        elif move[0] - location[0] < 0 and move[1] - location[1] < 0:
+            down_left = 1 
+
+
+    return right + left + up + down + upper_right + upper_left + down_right + down_left
 
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -36,8 +66,23 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = game.get_legal_moves(player)
+    own_player_location = game.get_player_location(player)
+    own_player_number_of_move_directions = get_move_direction_count(own_player_location, own_moves)
+
+    opponent_moves = game.get_legal_moves(game.get_opponent(player))
+    opponent_player_location = game.get_player_location(game.get_opponent(player))
+    opponent_player_number_of_move_directions = get_move_direction_count(opponent_player_location, opponent_moves)
+
+    # add the feautre that try to maxize the possible moving directions of own player against opponent (mobility feature)
+    score = (len(own_moves) - len(opponent_moves)) + 2 * (own_player_number_of_move_directions - opponent_player_number_of_move_directions)
+    return float(score)
 
 
 def custom_score_2(game, player):
@@ -62,8 +107,16 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    return float(own_moves - opponent_moves ** 2)
 
 
 def custom_score_3(game, player):
@@ -88,8 +141,27 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    # own_moves = len(game.get_legal_moves(player))
+    # opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    own_moves = game.get_legal_moves(player)
+    own_player_location = game.get_player_location(player)
+    own_player_number_of_move_directions = get_move_direction_count(own_player_location, own_moves)
+
+    opponent_moves = game.get_legal_moves(game.get_opponent(player))
+    opponent_player_location = game.get_player_location(game.get_opponent(player))
+    opponent_player_number_of_move_directions = get_move_direction_count(opponent_player_location, opponent_moves)
+
+    # try to maxize the possible moving directions of own player against opponent (mobility feature)
+    score = own_player_number_of_move_directions - opponent_player_number_of_move_directions
+
+    return float(score)
 
 
 class IsolationPlayer:
